@@ -19,26 +19,7 @@ c.	Condition Scenario: Multiple Disbursements can be possible
 6.	Borrower Benefits are not being considered for this iteration of the engine, some of them are listed below:
 a.	ACH reduction
 b.	Graduation reduction
-c.	Cosigner release, etc., 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+c.	Cosigner release, etc.,
 
 
 Iteration 2 – 05/13/2020
@@ -66,14 +47,6 @@ iii.	For PI loans, where the student pays a minimum payment of $25 towards the a
 5.	Exception: For IM loans, the In-school and the grace period will be set to – 0 Months
 a.	Scenario 1: In case of single disbursement, repayment starts after the disbursement date
 b.	Scenario 2: In case of multiple disbursements, Interest accrues from the first disbursement and repayment of the P&I starts after the last Disbursement date 
-
-
-
-
-
-
-
-
 
 
 
