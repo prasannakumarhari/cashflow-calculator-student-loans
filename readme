@@ -1,0 +1,140 @@
+Cashflow and WAL Engine Requirements 
+
+Iteration 1 – 05/11/2020
+
+Product offering level attributes/characteristics:
+
+1.	Repayment Type: DF, IO, PI, IM
+2.	Repayment Term: 7, 10, 15 (not necessarily the previously mentioned terms but the term might be varied as well, example: 5, 12, 20, 25, 30)
+a.	For implementation purposes: We can consider integer values in Months. 
+b.	Example: Input for repayment term would be 120 months.
+3.	Minimum payment amount of the P& I balance: $50 (It can be flexible as well; should have an upper and lower bound case)
+4.	Index variable: Fixed or Variable rates; Example: LIBORM25 + 5.5% (Margin based on product offering level) = Interest Rate (%)
+5.	Deferment term: 
+a.	Dependency in calculating the deferment term 
+i.	Expected Graduation Date
+ii.	First Disbursement Date
+b.	Condition Scenario: At least one disbursement should be made, else it is not a loan
+c.	Condition Scenario: Multiple Disbursements can be possible 
+6.	Borrower Benefits are not being considered for this iteration of the engine, some of them are listed below:
+a.	ACH reduction
+b.	Graduation reduction
+c.	Cosigner release, etc., 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Iteration 2 – 05/13/2020
+
+Student Loan Lifecycle
+
+1.	In-School Period: Defined as the time/duration between First Disbursement and Graduation date
+a.	Maximum available In-school period – 60 Months
+b.	Factors affecting expected graduation date: Dropouts, Extensions, Less than half time attendance, etc.,
+
+2.	Grace Period: Defined as the time after the In-School deferment but before which the student enters repayment
+a.	 Maximum available grace period – 6 Months
+
+3.	Additional deferment:
+a.	Maximum available additional deferment – 48 Months
+b.	For DF, PI, IO loans, the first 24 months of additional deferment will need not require an interest payment but after which, interest payment is required
+
+4.	For DF, PI and IO loans the above-mentioned student loan lifecycle is applied. 
+a.	Example: Consider a 7-year repayment term loan, fully deferred. The student has 84 months to pay back the principal balance and the accrued interest after he/she enters repayment (Repayment begins after the In-School period and the grace period – 66 Months)
+b.	Capitalization process: During the time of In-school and grace period, the interest accrued is added to the principal balance every month
+i.	The capitalization process mentioned above is based for DF loans.
+ii.	For IO loans, where the student pays the accrued interest, there is no interest capitalization.
+iii.	For PI loans, where the student pays a minimum payment of $25 towards the accrued interest, the rest of the interest is then added to the Principal balance.
+
+5.	Exception: For IM loans, the In-school and the grace period will be set to – 0 Months
+a.	Scenario 1: In case of single disbursement, repayment starts after the disbursement date
+b.	Scenario 2: In case of multiple disbursements, Interest accrues from the first disbursement and repayment of the P&I starts after the last Disbursement date 
+
+
+
+
+
+
+
+
+
+
+
+Cashflow Engine Process
+	
+1.	Let us consider a 7-year repayment term - 84 Months
+2.	1 year of deferment - 12 Months
+3.	Total = 96 Months
+The total number of monthly payments required is 84, as the amount of deferment does not affect the number of payments.
+
+Cashflow changes based on the repayment option:
+1.	PI and IO: Interest amount is paid during deferment 
+2.	DF: No payment required during deferment, but in case of additional deferment (48 Months), the first 24 months need not require payments but after 24 months, interest payments are required
+3.	IM loans: No deferment 
+
+How amortization amount and repayment structure of the P&I balance works:
+1.	Based on the interest rate
+2.	Repayment term in months
+3.	Capitalization process (please refer to the capitalization process mentioned above)
+4.	Monthly payment amount first pays the outstanding interest accrued for that month and the left over is then applied to the principal amount 
+
+WAL Calculation Process
+1.	Let us consider two scenarios:
+a.	Scenario 1: An IM loan with a single disbursement (exception: assumption made by Gaurav, even if the loan is multiple disbursements)
+i.	Loan amount - $10,000
+ii.	84 Months repayment
+iii.	84 amortization payments
+b.	Scenario 2: An IM loan with multiple disbursements (accurate process)
+i.	2 disbursements over a period of 6 months
+ii.	Loan amount - $10,000
+1.	First disbursement - $100
+2.	Second disbursement - $9,900
+iii.	84 Months repayment
+In the Second scenario, due to multiple disbursements, interest is accrued on the first disbursement amount and when the next disbursement is done, the interest accrued is added onto the new principal balance (First Disbursement amount + Interest accrued from first Disbursement + second Disbursement amount). 
+
+Please refer to the capitalization process if required.
+When the student enters repayment, he/she will have 78 (84-6=78) months to repay the P&I amount.
+
+The WAL will differ in both the scenarios, but the scenario 2 is preferred as it is more accurate.
+
+Iteration 3 – 05/21/2020
+
+Process flow 
+Step 1: The loan amount gets disbursed 
+Step 2: Interest accrues based on the repayment option selected
+Step 3: Borrower makes payments based on the repayment option selected
+Step 4: Future Prepayment and default rates assumptions are added accordingly
+i.	Total Disbursed Amount * Unit prepayment rate = Prepay amount 
+ii.	Total Disbursed Amount * Unit default rate = Default amount
+Step 5: Capitalization of the interest accrued after all initial payments have been made before the repayment term begins
+Step 6: Repayment term begins
+Step 7: Monthly Amortization schedule is developed 
+Step 8: Borrower makes payment along the way based on the schedule
+Step 9: Full Principal & Interest is paid off as per amortization schedule
+Iteration 4 – 05/27/2020
+
+Curves to be used in the cashflow modelling 
+•	Prepayment curves
+•	Default curves
+•	Partial prepayment curves
+•	Severity curves
+•	Recovery curves
+•	Forward looking LIBOR curves (Potential addition for the next iteration)
+
